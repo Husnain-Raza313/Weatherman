@@ -11,6 +11,7 @@ File.foreach("Dubai_weather/Dubai_weather_2004_Aug.txt") do
    #Eliminates Nil Values for High Temperature
 
   if (s[1]!="")
+
    max_temp_array<< s[1]
    date_array << s[0]
   end
