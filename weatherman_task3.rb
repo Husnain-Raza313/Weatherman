@@ -6,23 +6,15 @@ require 'colorize'
 max_temp_array = []
 min_temp_array = []
 date_array = []
-# p ARGV[2]
+
 month = Date::MONTHNAMES[ARGV[1].split('/')[1].to_i]
 month = month.slice(0...3)
-# p month
 
 if ARGV[0] == '-c'
   File.foreach(".#{ARGV[2]}/#{ARGV[2]}_#{ARGV[1].split('/')[0]}_#{month}.txt") do |line| # puts "line#1 : #{line}"
     # puts line.size
     if line.include?(',')
       s = line.split(',', 10)
-      #    #Eliminates Nil Values for High Temperature
-      #
-      #   if (s[1]!="")
-      #
-      #    max_temp_array<< s[1]
-      #    date_array << s[0]
-      #   end
 
       max_temp_array << s[1] # maintaing array of high temperature values
       min_temp_array << s[3] # maintaining array of low temperature values
@@ -62,7 +54,6 @@ def bonus_task(element, maxminhash, ctr)
     print_red_blue(element, maxminhash, ctr)
     print "#{maxminhash[:max][ctr]}C - #{maxminhash[:min][ctr]}C \n\n"
   end
-  # print "#{maxminhash[:min][ctr]}C \n\n"
 end
 
 def print_red_blue(_element, maxminhash, ctr)
@@ -75,14 +66,8 @@ def print_method(maxminhash, date_array, ctr = 0)
 
   # storing symbols in strings
   date_array.each do |element|
-    # print " #{element.split('-')[2]} : "
-    # maxminhash[:max][ctr].times { print '+'.blue }
-    # print "#{maxminhash[:max][ctr]}C \n"
     print_max_temp(maxminhash, element, ctr)
 
-    # print " #{element.split('-')[2]} : "
-    # maxminhash[:min][ctr].times { print '-'.red }
-    # print "#{maxminhash[:min][ctr]}C \n\n"
     print_min_temp(maxminhash, element, ctr)
 
     bonus_task(element, maxminhash, ctr)
@@ -100,9 +85,6 @@ def visualize_temp(max_temp_array, min_temp_array, date_array)
   # checking nil values and converting strings into integers
   max_temp_array = check_nil_values(max_temp_array)
   min_temp_array = check_nil_values(min_temp_array)
-  # To Convert Strings into Integer Values
-  # max_temp_array = max_temp_array.map(&:to_i)
-  # min_temp_array = min_temp_array.map(&:to_i)
 
   maxminhash = {}
   maxminhash[:max] = max_temp_array
@@ -119,7 +101,6 @@ def check_nil_values(array)
       element.to_i
     end
   end
-  # p array
 end
 
 # Calling Function
