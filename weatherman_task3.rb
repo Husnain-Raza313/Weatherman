@@ -1,84 +1,127 @@
-require "Date"
+# frozen_string_literal: true
 
-max_temp_array=Array.new
-min_temp_array=Array.new
-date_array=Array.new
+require 'Date'
+require 'colorize'
 
-File.foreach("Dubai_weather/Dubai_weather_2004_Aug.txt") do
-  |line| #puts "line#1 : #{line}"
-  s= line.split(",",10)
-=begin
-   #Eliminates Nil Values for High Temperature
+max_temp_array = []
+min_temp_array = []
+date_array = []
+# p ARGV[2]
+month = Date::MONTHNAMES[ARGV[1].split('/')[1].to_i]
+month = month.slice(0...3)
+# p month
 
-  if (s[1]!="")
+if ARGV[0] == '-c'
+  File.foreach(".#{ARGV[2]}/#{ARGV[2]}_#{ARGV[1].split('/')[0]}_#{month}.txt") do |line| # puts "line#1 : #{line}"
+    # puts line.size
+    if line.include?(',')
+      s = line.split(',', 10)
+      #    #Eliminates Nil Values for High Temperature
+      #
+      #   if (s[1]!="")
+      #
+      #    max_temp_array<< s[1]
+      #    date_array << s[0]
+      #   end
 
-   max_temp_array<< s[1]
-   date_array << s[0]
+      max_temp_array << s[1] # maintaing array of high temperature values
+      min_temp_array << s[3] # maintaining array of low temperature values
+      date_array << s[0] # maintaining array of date
+    end
   end
-=end
+end
+def print_max_temp(maxminhash, element, ctr)
+  print " #{element.split('-')[2]} : "
+  if maxminhash[:max][ctr] == 'N/A'
+    print " N/A \n"
+  else
+    maxminhash[:max][ctr].times { print '+'.blue }
 
-max_temp_array << s[1] #maintaing array of high temperature values
-min_temp_array << s[3] #maintaining array of low temperature values
-date_array << s[0]  #maintaining array of date
+    print "#{maxminhash[:max][ctr]}C \n"
+  end
+end
 
- end
+def print_min_temp(maxminhash, element, ctr)
+  print " #{element.split('-')[2]} : "
+  if maxminhash[:min][ctr] == 'N/A'
+    print " N/A \n"
+  else
+    maxminhash[:min][ctr].times { print '-'.red }
 
- def visualize_temp(max_temp_array, min_temp_array, date_array)
+    print "#{maxminhash[:min][ctr]}C \n\n"
+  end
+end
 
-    day_array=Array.new
-    month_array=""
-    year_array=""
+def bonus_task(element, maxminhash, ctr)
+  # BONUS TASKKKK!
+  # p '(Bonus Task)'
+  print " #{element.split('-')[2]} : "
+  if maxminhash[:min][ctr] == 'N/A' || maxminhash[:max][ctr] == 'N/A'
+    print " N/A \n\n"
+  else
+    print_red_blue(element, maxminhash, ctr)
+    print "#{maxminhash[:max][ctr]}C - #{maxminhash[:min][ctr]}C \n\n"
+  end
+  # print "#{maxminhash[:min][ctr]}C \n\n"
+end
 
-    #Shifting first entries which include the labels
-    max_temp_array.shift
-    min_temp_array.shift
-    date_array.shift
+def print_red_blue(_element, maxminhash, ctr)
+  maxminhash[:max][ctr].times { print '+'.blue }
+  maxminhash[:min][ctr].times { print '-'.red }
+end
 
-    #To Convert Strings into Integer Values
+def print_method(maxminhash, date_array, ctr = 0)
+  p "#{Date::MONTHNAMES[date_array[ctr].split('-')[1].to_i]} #{date_array[ctr].split('-')[0]}"
 
-    max_temp_array=max_temp_array.map(&:to_i)
-    min_temp_array=min_temp_array.map(&:to_i)
+  # storing symbols in strings
+  date_array.each do |element|
+    # print " #{element.split('-')[2]} : "
+    # maxminhash[:max][ctr].times { print '+'.blue }
+    # print "#{maxminhash[:max][ctr]}C \n"
+    print_max_temp(maxminhash, element, ctr)
 
-    #p max_temp_array
-    #p min_temp_array
+    # print " #{element.split('-')[2]} : "
+    # maxminhash[:min][ctr].times { print '-'.red }
+    # print "#{maxminhash[:min][ctr]}C \n\n"
+    print_min_temp(maxminhash, element, ctr)
 
+    bonus_task(element, maxminhash, ctr)
 
-    #Separating Days, months and years from the Date
+    ctr += 1 # incrementing
+  end
+end
 
-    date_array.each do
-      |e|
-      array=e.split("-")
-      day_array << array[2]
-      month_array = array[1]
-      year_array = array[0]
+def visualize_temp(max_temp_array, min_temp_array, date_array)
+  # Shifting first entries which include the labels
+  max_temp_array.shift
+  min_temp_array.shift
+  date_array.shift
+
+  # checking nil values and converting strings into integers
+  max_temp_array = check_nil_values(max_temp_array)
+  min_temp_array = check_nil_values(min_temp_array)
+  # To Convert Strings into Integer Values
+  # max_temp_array = max_temp_array.map(&:to_i)
+  # min_temp_array = min_temp_array.map(&:to_i)
+
+  maxminhash = {}
+  maxminhash[:max] = max_temp_array
+  maxminhash[:min] = min_temp_array
+  print_method(maxminhash, date_array)
+end
+
+def check_nil_values(array)
+  array.map do |element|
+    if element == ''
+      'N/A'
+
+    else
+      element.to_i
     end
+  end
+  # p array
+end
 
-    #p day_array
+# Calling Function
 
-
-    #strings for storing symbols for high and low temperature values
-    str_plus=""
-    str_minus=""
-    count=0
-
-
-   p "#{Date::MONTHNAMES[month_array.to_i]} #{year_array}"  # changing number into month's name
-
-    # storing symbols in strings
-    day_array.each do |element|
-
-        max_temp_array[count].times { str_plus << "+"}
-        min_temp_array[count].times { str_minus << "-"}
-
-        p "#{element} : #{str_plus} #{max_temp_array[count]}C"
-        p "#{element} : #{str_minus} #{min_temp_array[count]}C"
-
-        count=count+1 #incrementing
-        str_plus=""
-        str_minus=""
-    end
- end
-
- #Calling Function
-
- visualize_temp(max_temp_array,min_temp_array,date_array)
+visualize_temp(max_temp_array, min_temp_array, date_array)
