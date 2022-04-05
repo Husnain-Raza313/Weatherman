@@ -3,44 +3,17 @@
 require 'Date'
 require 'colorize'
 
-max_temp_array = []
-min_temp_array = []
-date_array = []
-
-month = Date::MONTHNAMES[ARGV[1].split('/')[1].to_i]
-month = month.slice(0...3)
-
-if ARGV[0] == '-c'
-  File.foreach(".#{ARGV[2]}/#{ARGV[2]}_#{ARGV[1].split('/')[0]}_#{month}.txt") do |line| # puts "line#1 : #{line}"
-    # puts line.size
-    if line.include?(',')
-      s = line.split(',', 10)
-
-      max_temp_array << s[1] # maintaing array of high temperature values
-      min_temp_array << s[3] # maintaining array of low temperature values
-      date_array << s[0] # maintaining array of date
+def print_temp(temp, element, ctr, color)
+  print " #{element.split('-')[2]} : "
+  if temp[ctr] == 'N/A'
+    print " N/A \n"
+  else
+    if color == 'red'
+      temp[ctr].times { print '-'.red }
+    else
+      temp[ctr].times { print '+'.blue }
     end
-  end
-end
-def print_max_temp(maxminhash, element, ctr)
-  print " #{element.split('-')[2]} : "
-  if maxminhash[:max][ctr] == 'N/A'
-    print " N/A \n"
-  else
-    maxminhash[:max][ctr].times { print '+'.blue }
-
-    print "#{maxminhash[:max][ctr]}C \n"
-  end
-end
-
-def print_min_temp(maxminhash, element, ctr)
-  print " #{element.split('-')[2]} : "
-  if maxminhash[:min][ctr] == 'N/A'
-    print " N/A \n"
-  else
-    maxminhash[:min][ctr].times { print '-'.red }
-
-    print "#{maxminhash[:min][ctr]}C \n\n"
+    print "#{temp[ctr]}C \n\n"
   end
 end
 
@@ -52,7 +25,7 @@ def bonus_task(element, maxminhash, ctr)
     print " N/A \n\n"
   else
     print_red_blue(element, maxminhash, ctr)
-    print "#{maxminhash[:max][ctr]}C - #{maxminhash[:min][ctr]}C \n\n"
+    print "#{maxminhash[:max][ctr]}C - #{maxminhash[:min][ctr]}C \n\n" # prints max and min temperature
   end
 end
 
@@ -62,13 +35,13 @@ def print_red_blue(_element, maxminhash, ctr)
 end
 
 def print_method(maxminhash, date_array, ctr = 0)
+  # printing Month name and Year e.g. March 2015
   p "#{Date::MONTHNAMES[date_array[ctr].split('-')[1].to_i]} #{date_array[ctr].split('-')[0]}"
 
-  # storing symbols in strings
   date_array.each do |element|
-    print_max_temp(maxminhash, element, ctr)
+    print_temp(maxminhash[:max], element, ctr, 'blue')
 
-    print_min_temp(maxminhash, element, ctr)
+    print_temp(maxminhash[:min], element, ctr, 'red')
 
     bonus_task(element, maxminhash, ctr)
 
@@ -94,13 +67,38 @@ end
 
 def check_nil_values(array)
   array.map do |element|
+    # Converting empty string into N/A
     if element == ''
       'N/A'
 
     else
-      element.to_i
+      element.to_i # Converting non-empty strings into integers
     end
   end
+end
+
+# Program Starts Here
+
+max_temp_array = []
+min_temp_array = []
+date_array = []
+
+month = Date::MONTHNAMES[ARGV[1].split('/')[1].to_i]
+month = month.slice(0...3)
+
+if ARGV[0] == '-c'
+  File.foreach(".#{ARGV[2]}/#{ARGV[2]}_#{ARGV[1].split('/')[0]}_#{month}.txt") do |line| # puts "line#1 : #{line}"
+    # puts line.size
+    if line.include?(',') # helps in skipping and storing nil lines
+      s = line.split(',', 10)
+
+      max_temp_array << s[1] # maintaing array of high temperature values
+      min_temp_array << s[3] # maintaining array of low temperature values
+      date_array << s[0] # maintaining array of date
+    end
+  end
+else
+  p 'Wrong Command Given'
 end
 
 # Calling Function
